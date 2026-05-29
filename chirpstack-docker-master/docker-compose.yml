@@ -15,7 +15,33 @@ services:
       - POSTGRESQL_HOST=postgres
     ports:
       - "8080:8080"
-
+  node-red:
+    image: nodered/node-red:latest-22
+    container_name: node-red
+    restart: unless-stopped
+    ports:
+      - "1880:1880"
+    depends_on:
+      - mosquitto
+      - chirpstack
+    environment:
+      - TZ=Asia/Manila
+    volumes:
+      - node-red-data:/data
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin12345
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    depends_on:
+      - postgres
+    
   chirpstack-gateway-bridge:
     image: chirpstack/chirpstack-gateway-bridge:4
     restart: unless-stopped
@@ -79,3 +105,5 @@ services:
 volumes:
   postgresqldata:
   redisdata:
+  node-red-data:
+  grafana-storage:
